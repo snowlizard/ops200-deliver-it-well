@@ -26,3 +26,23 @@ jobs:
 
       # run tests!
       - run: yarn test
+  deploy:
+    docker:
+      - image: circleci/node:8.11
+    steps:
+      - checkout
+      - run:
+        name: Deploy Main to Heroku
+        command: git push https://heroku:f1d640b0-8611-431f-af9a-214b98624962@git.heroku.com/ops200-delivery.git main
+
+workflows:
+  version: 2
+  build-deploy:
+    jobs:
+      - build
+      - deploy:
+        requires:
+        - build
+        filters:
+        branches:
+          only: main
