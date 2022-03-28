@@ -37,4 +37,15 @@ describe('server/app.js', function() {
       done();
     });
   });
+
+  it('should have an h2 tag that says: Am I devilvering it well?', (done) => {
+    chai.request(server)
+      .get('/')
+      .end( (err, res) => {
+        expect(err).not.exist;
+        expect(JSON.stringify(res.text)).to.contain('Am I delivering it well?')
+        done();
+      });
+  });
+  
 })
