@@ -1,44 +1,30 @@
-version: 2
-jobs: 
-  build: 
-    docker: 
-      # specify the version you desire here
-      - image: circleci/node:8.11
+version: 2.1
 
-    working_directory: ~/repo
+orbs:
+  node: circleci/node@5.0.2
+  heroku: circleci/heroku@1.2.6
 
-    steps: 
-      - checkout
-
-      # Download and cache dependencies
-      - restore_cache: 
-          keys: 
-          - v1-dependencies-{{ checksum "package.json" }}
-        # fallback to using the latest cache if no exact match is found
-          - v1-dependencies-
-
-      - run: yarn install
-
-      - save_cache: 
-          paths: 
-          - node_modules
-          key: v1-dependencies-{{ checksum "package.json" }}
-
-      # run tests!
-      - run: yarn test
-  deploy:
+jobs:
+  build:
     docker:
-      - image: circleci/node:8.11
+      - image: cimg/node:16.14.2
     steps:
       - checkout
-      - run:
-          command: git push https://heroku:f1d640b0-8611-431f-af9a-214b98624962@git.heroku.com/ops200-delivery.git main
+      - node/install:
+        node-version: '16.14.2'
+      - node/install-packages
+  deploy:
+    docker:
+      - image: cimg/node:16.14.2
+    steps:
+      - heroku/deploy-via-git:
+          api-key: $HEROKU_API_KEY
+          app-name: ops200-delivery
+          branch: main
 
-workflows:
-  version: 2
-  build-deploy:
+workflow:
+  version: 2.1
+  build_deploy:
     jobs:
       - build
-      - deploy:
-          requires:
-            - build
+      - deploy
